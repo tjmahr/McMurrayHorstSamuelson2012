@@ -1,9 +1,6 @@
-#' McMurrayHorstSamuelson2012.
-#'
-#' @name McMurrayHorstSamuelson2012
 #' @docType package
-NULL
+#' @importFrom magrittr %>%
+"_PACKAGE"
 
 library(magrittr)
 
-#' @importFrom magrittr %@%
