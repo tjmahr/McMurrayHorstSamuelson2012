@@ -5,10 +5,12 @@ create_network_from_list <- function(settings) {
 }
 
 #' @export
-create_network <- function(n_wordforms, n_images, n_lexicon, weight_init_min,
+create_network <- function(n_wordforms, n_images, n_lexicon,
+                           referential_ambiguity, weight_init_min,
                            weight_init_max, ff_temp, fb_temp, inhib_lexicon,
-                           inhib_wordform, inhib_image, learning_rate,
-                           settle_stability, referential_ambiguity) {
+                           inhib_wordform, inhib_image,
+                           learning_rate, settle_stability,
+                           wordform_freqs = NULL) {
   # Initialize layers
   layer_wordform <- numeric(n_wordforms)
   layer_image <- numeric(n_images)
@@ -28,6 +30,11 @@ create_network <- function(n_wordforms, n_images, n_lexicon, weight_init_min,
     weight_init_min,
     weight_init_max)
 
+  # Assign uniform distribution to wordforms by default
+  if (is.null(wordform_freqs)) {
+    wordform_freqs <- rep(1 / n_wordforms, n_wordforms)
+  }
+
   # Create the network object
   bundle <- list(
     layers = list(
@@ -46,7 +53,8 @@ create_network <- function(n_wordforms, n_images, n_lexicon, weight_init_min,
       inhib_lexicon = inhib_lexicon,
       ff_temp = ff_temp,
       fb_temp = fb_temp,
-      settle_stability = settle_stability
+      settle_stability = settle_stability,
+      wordform_freqs = wordform_freqs
     ),
     history = list(
       cycles = 0,
@@ -71,7 +79,7 @@ print.mhs_net <- function(x, ...) {
 #' @export
 set_random_input <- function(network) {
   words <- seq_along(network$layers$wordform)
-  target_word <- sample(words, 1)
+  target_word <- sample(words, 1, prob = network$params$wordform_freqs)
 
   images <- seq_along(network$layers$image)
   draws <- stats::runif(images) <= network$params$referential_ambiguity
@@ -96,6 +104,16 @@ set_afc_input <- function(network, target_word, n_foils) {
     set_active_wordform(target_word) %>%
     set_active_image(choices)
 }
+
+#' @export
+set_word_production_input <- function(network, target_image) {
+  wordforms <- seq_along(network$layers$wordform)
+
+  network %>%
+    set_active_wordform(wordforms) %>%
+    set_active_image(target_image)
+}
+
 
 #' @export
 set_active_wordform <- function(network, wordform) {
@@ -175,28 +193,6 @@ run_cycle <- function(network) {
   network
 }
 
-#' @export
-cycle_network <- function(network, n_cycles) {
-  stopifnot(n_cycles > 0)
-  while (n_cycles > 0 ) {
-    network <- run_cycle(network)
-    n_cycles <- n_cycles - 1
-  }
-
-  network
-}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -212,25 +208,25 @@ compute_delta_weights <- function(input_xs, hidden_xs, weights, scale = 1) {
   scale * (growth - .5 * decay1 - .5 * decay2)
 }
 
-# Manual way to check above
-compute_delta_weights2 <- function(input_xs, hidden_xs, weights, scale = 1) {
-  deltas <- weights
-
-  for (i in seq_along(input_xs)) {
-    input_x <- input_xs[i]
-
-    for (h in seq_along(hidden_xs)) {
-      input_h <- hidden_xs[h]
-      w <- weights[h, i]
-
-      growth <- input_x * input_h * (1 - w)
-      decay1 <- .5 * (1 - input_x) * input_h * w
-      decay2 <- .5 * input_x * (1 - input_h) * w
-      deltas[h, i] <- growth - decay1 - decay2
-    }
-  }
-  deltas * scale
-}
+# # Manual way to check above
+# compute_delta_weights2 <- function(input_xs, hidden_xs, weights, scale = 1) {
+#   deltas <- weights
+#
+#   for (i in seq_along(input_xs)) {
+#     input_x <- input_xs[i]
+#
+#     for (h in seq_along(hidden_xs)) {
+#       input_h <- hidden_xs[h]
+#       w <- weights[h, i]
+#
+#       growth <- input_x * input_h * (1 - w)
+#       decay1 <- .5 * (1 - input_x) * input_h * w
+#       decay2 <- .5 * input_x * (1 - input_h) * w
+#       deltas[h, i] <- growth - decay1 - decay2
+#     }
+#   }
+#   deltas * scale
+# }
 
 #' @export
 run_epoch <- function(network) {

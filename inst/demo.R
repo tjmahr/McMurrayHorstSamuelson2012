@@ -1,5 +1,7 @@
 library(magrittr)
 library(McMurrayHorstSamuelson2012)
+library(ggplot2)
+library(dplyr)
 
 settings <- list(
   n_wordforms = 35,
@@ -32,7 +34,9 @@ network <- network %>%
 # Run a bunch more with periodic testing
 n <- 998
 n_whole <- 998
-tests <- dplyr::data_frame()
+tests <- data_frame()
+wt_tests <- data_frame()
+
 
 while (n > 0) {
   network <- network %>%
@@ -44,12 +48,12 @@ while (n > 0) {
     message("Testing on iteration ", n_whole - n)
     test_3afc <- run_afc_battery(network, n_foils = 2)
     test_10afc <- run_afc_battery(network, n_foils = 9)
-    tests <- dplyr::bind_rows(tests, test_3afc, test_10afc)
+    tests <- bind_rows(tests, test_3afc, test_10afc)
+
+    wts <- analyze_weights(network)
+    wt_tests <- bind_rows(wt_tests, wts)
   }
 }
-
-library(ggplot2)
-library(dplyr)
 
 words_known <- tests %>%
   group_by(Test, PreviousEpochs) %>%

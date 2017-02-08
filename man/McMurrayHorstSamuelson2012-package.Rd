@@ -6,7 +6,7 @@
 \alias{McMurrayHorstSamuelson2012-package}
 \title{McMurrayHorstSamuelson2012: R Implementation of McMurray, Horst, and Samuelson (2012) Word Learning Model}
 \description{
-This package implements the associative neural network model of word learning and word recognition by McMurray, Horst, and Samuelson (2012). The original network was written in `Matlab`. This package was ported to R in order to study the network's design and mechanics as well as provide an open-source version of it.
+This package implements the associative neural network model of word learning and word recognition by McMurray, Horst, and Samuelson (2012). The original network was written in 'Matlab'. This package was ported to R in order to study the network's design and mechanics as well as provide an open-source version of it.
 }
 \author{
 \strong{Maintainer}: Tristan Mahr \email{tristan.mahr@wisc.edu}
