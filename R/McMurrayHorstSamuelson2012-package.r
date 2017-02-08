@@ -2,5 +2,5 @@
 #' @importFrom magrittr %>%
 "_PACKAGE"
 
-library(magrittr)
+# library(magrittr)
 

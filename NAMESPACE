@@ -2,6 +2,7 @@
 
 S3method(print,mhs_net)
 export(create_network)
+export(create_network_from_list)
 export(cycle_network)
 export(rest_lexicon)
 export(run_afc_battery)

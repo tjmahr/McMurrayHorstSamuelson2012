@@ -16,7 +16,7 @@ equalize_vector <- function(xs) {
 randomize_weights <- function(weight_matrix, lower, upper) {
   n <- length(weight_matrix)
   limits <- range(c(lower, upper))
-  draws <- runif(n, min = limits[1], max = limits[2])
+  draws <- stats::runif(n, min = limits[1], max = limits[2])
   matrix(draws, nrow = nrow(weight_matrix), ncol = ncol(weight_matrix))
 }
 

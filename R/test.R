@@ -18,7 +18,7 @@ run_afc_battery <- function(network, n_foils, test_name = paste0(1 + n_foils, "A
 
     # Store results
     targets[target] <- target
-    rts[target] <- tail(test_network$history$epoch_history, 1)
+    rts[target] <- utils::tail(test_network$history$epoch_history, 1)
     guess <- which.max(test_network$layers$image)
     activations[target] <- test_network$layers$image[guess]
     correct[target] <- guess == target

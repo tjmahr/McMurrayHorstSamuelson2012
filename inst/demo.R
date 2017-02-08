@@ -18,7 +18,7 @@ settings <- list(
 )
 
 # Create a network from a list
-network <- do.call(create_network, settings)
+network <- create_network_from_list(settings)
 
 # Run some training trials
 network <- network %>%
@@ -31,6 +31,7 @@ network <- network %>%
 
 # Run a bunch more with periodic testing
 n <- 998
+n_whole <- 998
 tests <- dplyr::data_frame()
 
 while (n > 0) {
@@ -40,6 +41,7 @@ while (n > 0) {
   n <- n - 1
 
   if (n %% 50 == 0) {
+    message("Testing on iteration ", n_whole - n)
     test_3afc <- run_afc_battery(network, n_foils = 2)
     test_10afc <- run_afc_battery(network, n_foils = 9)
     tests <- dplyr::bind_rows(tests, test_3afc, test_10afc)
@@ -60,6 +62,7 @@ ggplot(words_known) +
   geom_line()
 
 n <- 10000
+n_whole <- 10000
 
 while (n > 0) {
   network <- network %>%
@@ -68,6 +71,7 @@ while (n > 0) {
   n <- n - 1
 
   if (n %% 50 == 0) {
+    message("Testing on iteration ", n_whole - n)
     test_3afc <- run_afc_battery(network, n_foils = 2)
     test_10afc <- run_afc_battery(network, n_foils = 9)
     tests <- dplyr::bind_rows(tests, test_3afc, test_10afc)

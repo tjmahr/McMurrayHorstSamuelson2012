@@ -4,11 +4,11 @@
 \name{McMurrayHorstSamuelson2012-package}
 \alias{McMurrayHorstSamuelson2012}
 \alias{McMurrayHorstSamuelson2012-package}
-\title{McMurrayHorstSamuelson2012: What the Package Does (one line, title case)}
+\title{McMurrayHorstSamuelson2012: R Implementation of McMurray, Horst, and Samuelson (2012) Word Learning Model}
 \description{
-What the package does (one paragraph).
+This package implements the associative neural network model of word learning and word recognition by McMurray, Horst, and Samuelson (2012). The original network was written in `Matlab`. This package was ported to R in order to study the network's design and mechanics as well as provide an open-source version of it.
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com}
+\strong{Maintainer}: Tristan Mahr \email{tristan.mahr@wisc.edu}
 
 }

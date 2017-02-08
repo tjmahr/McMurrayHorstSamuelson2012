@@ -1,12 +1,20 @@
+
+#' @export
+create_network_from_list <- function(settings) {
+  do.call(create_network, settings)
+}
+
 #' @export
 create_network <- function(n_wordforms, n_images, n_lexicon, weight_init_min,
                            weight_init_max, ff_temp, fb_temp, inhib_lexicon,
                            inhib_wordform, inhib_image, learning_rate,
                            settle_stability, referential_ambiguity) {
+  # Initialize layers
   layer_wordform <- numeric(n_wordforms)
   layer_image <- numeric(n_images)
   layer_lexicon <- equalize_vector(numeric(n_lexicon))
 
+  # Initialize weights
   weight_image_lexicon <- layer_lexicon %o% layer_image
   weight_wordform_lexicon <- layer_lexicon %o% layer_wordform
 
@@ -20,6 +28,7 @@ create_network <- function(n_wordforms, n_images, n_lexicon, weight_init_min,
     weight_init_min,
     weight_init_max)
 
+  # Create the network object
   bundle <- list(
     layers = list(
       wordform = layer_wordform,
@@ -49,9 +58,10 @@ create_network <- function(n_wordforms, n_images, n_lexicon, weight_init_min,
   structure(bundle, class = c("mhs_net", "list"))
 }
 
+
 #' @export
 print.mhs_net <- function(x, ...) {
-  str(x, ...)
+  utils::str(x, ...)
 }
 
 
@@ -64,7 +74,8 @@ set_random_input <- function(network) {
   target_word <- sample(words, 1)
 
   images <- seq_along(network$layers$image)
-  competitors <- images[runif(images) <= network$params$referential_ambiguity]
+  draws <- stats::runif(images) <= network$params$referential_ambiguity
+  competitors <- images[draws]
 
   active_images <- unique(c(target_word, competitors))
 
