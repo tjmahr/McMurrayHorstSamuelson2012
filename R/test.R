@@ -135,3 +135,66 @@ analyze_weights <- function(network) {
     WordsKnown = words_known
   )
 }
+
+
+#' @export
+analyze_weight_strengths <- function(network) {
+  test_name <- "ConnectionAnalysis"
+
+  wordforms <- seq_len(ncol(network$weights$wordform_lexicon))
+  images <- seq_len(ncol(network$weights$image_lexicon))
+
+  # Find most-connected lexical entry for each wordform-image input pair
+  input_wts <- network$weights$wordform_lexicon + network$weights$image_lexicon
+  most_activated_words <- apply(input_wts, MARGIN = 2, which.max)
+
+  # Identify the strongest auditory and visual connections for each input
+  is_strongest_auditory <- create_matrix_mask(
+    network$weights$wordform_lexicon,
+    most_activated_words,
+    seq_along(wordforms))
+
+  is_strongest_visual <- create_matrix_mask(
+    network$weights$image_lexicon,
+    most_activated_words,
+    seq_along(images))
+
+  strongest_auditory <- network$weights$wordform_lexicon[is_strongest_auditory]
+  strongest_visual <- network$weights$image_lexicon[is_strongest_visual]
+
+  # The irrelevant connections
+  weaker_auditory <- network$weights$wordform_lexicon[!is_strongest_auditory]
+  weaker_visual <- network$weights$image_lexicon[!is_strongest_visual]
+
+  # Entropy of weight matrix
+  entropy_aud <- compute_weight_entropy(network$weights$wordform_lexicon)
+  entropy_vis <- compute_weight_entropy(network$weights$image_lexicon)
+
+  results <- tibble::tribble(
+    ~ Relevance,  ~ Stat,    ~ InputType, ~ Value,
+    "Correct",    "Mean",    "Auditory",  mean(strongest_auditory),
+    "Correct",    "Mean",    "Visual",    mean(strongest_visual),
+    "Correct",    "Max",     "Auditory",  max(strongest_auditory),
+    "Correct",    "Max",     "Visual",    max(strongest_visual),
+
+    "Irrelevant", "Mean",    "Auditory",  mean(weaker_auditory),
+    "Irrelevant", "Mean",    "Visual",    mean(weaker_visual),
+    "Irrelevant", "Max",     "Auditory",  max(weaker_auditory),
+    "Irrelevant", "Max",     "Visual",    max(weaker_visual),
+
+    "All",        "Entropy", "Auditory",  entropy_aud,
+    "All",        "Entropy", "Visual",    entropy_vis
+  )
+
+  results %>%
+    mutate(
+      TestName = test_name,
+      PreviousEpochs = network$history$epochs) %>%
+    select_(~ TestName, ~ PreviousEpochs, ~ everything())
+}
+
+
+# # Vectorized look up of many elements from a given matrix
+# map_extract <- function(matrix, rows, cols) {
+#   unlist(Map(function(i, j) matrix[i, j], i = rows, j = cols))
+# }

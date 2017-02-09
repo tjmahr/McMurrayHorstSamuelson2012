@@ -29,3 +29,37 @@ activate_input <- function(xs, to_activate) {
 zero_along <- function(xs) {
   rep(0, length(xs))
 }
+
+
+# Create a logical matrix `m` where each `m[rows[i], cols[i]]` is `TRUE`. `m`
+# has the same dimension as the template `matrix`.
+create_matrix_mask <- function(matrix, rows, cols) {
+  # Store the number of rows to create
+  n_rows <- nrow(matrix)
+  create_one_column <- function(curr_rows) create_column_mask(n_rows, curr_rows)
+
+  # Create each column and combine into a matrix
+  mask <- Map(create_one_column, rows) %>%
+    unlist() %>%
+    matrix(nrow = nrow(matrix))
+
+  # Sanity test
+  stopifnot(apply(mask, 2, which) == rows)
+
+  mask
+}
+
+# Create a logical vector `x` of length `nrows` where `x[true_rows]` is `TRUE`
+create_column_mask <- function(nrows, true_rows) {
+  col <- logical(nrows)
+  col[true_rows] <- TRUE
+  col
+}
+
+compute_weight_entropy <- function(matrix) {
+  # Convert weights to probabilities
+  weight_probs <- matrix / sum(matrix)
+  # Entropy: -Σ(Pj * log2(Pj))
+  entropy <- -1 * sum(weight_probs * log2(weight_probs))
+  entropy
+}
